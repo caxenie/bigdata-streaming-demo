@@ -4,7 +4,7 @@ End-to-End example with Big Data tools. Data from a Sumo vehicle traffic simulat
 
 ### Prerequesites
 
-- Clone the [InTAS Sumo Configuration] (https://github.com/silaslobo/InTAS)
+- Clone the [InTAS Sumo Configuration](https://github.com/silaslobo/InTAS)
 - Install [Sumo Simulator](https://sumo.dlr.de/docs/Downloads.php)
 - Install [Apache Kafka](https://kafka.apache.org/quickstart)
 
