@@ -4,25 +4,26 @@ End-to-End example with Big Data tools. Data from a Sumo vehicle traffic simulat
 
 ### Prerequesites
 
+- Clone the [InTAS Sumo Configuration] (https://github.com/silaslobo/InTAS)
 - Install [Sumo Simulator](https://sumo.dlr.de/docs/Downloads.php)
 - Install [Apache Kafka](https://kafka.apache.org/quickstart)
 
 
 ### Setup guidelines
 
-This procedure assumes that the Sumo simulator, Apache Kafka, and Apache Flink
+This procedure assumes that the InTAS (InTAS is the realistic Ingolstadt traffic scenario for SUMO), Sumo simulator, Apache Kafka, and Apache Flink
 had been already installed correctly.
 
 Once done that, to run this project please follow the following instructions:
 
 ```
-git clone https://github.com/forons/sumo-flink-example.git
-cd sumo-flink-example
+git clone https://github.com/caxenie/bigdata-streaming-demo.git
+cd bigdata-streaming-demo
 git submodule init
 git submodule update
 ```
 
-Create now a virtual environment within the `sumo-flink-example` folder with
+Create now a virtual environment within the `bigdata-streaming-demo` folder with
 Python 3.7, for making the Apache Flink APIs to work.
 
 This is just an example of how to do it in Ubuntu if everything is already set
