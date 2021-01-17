@@ -3,20 +3,19 @@ from pyflink.table import StreamTableEnvironment, EnvironmentSettings
 
 
 def flink_processing():
-    # 1. create a TableEnvironment
+    # Bereiten Sie die Konfiguration der Streaming-Engine vor
     env = StreamExecutionEnvironment.get_execution_environment()
     env.set_parallelism(1)
     env_settings = EnvironmentSettings.Builder().use_blink_planner().build()
     t_env = StreamTableEnvironment.create(stream_execution_environment=env,
                                           environment_settings=env_settings)
-    # specify connector and format jars
+
     t_env.get_config().get_configuration().set_string(
         "pipeline.jars",
         "file:////D:/temp/kafka_2.12-2.7.0/flink-connector-kafka_2.11-1.12.0.jar;"
         "file:////D:/temp/kafka_2.12-2.7.0/flink-sql-connector-kafka_2.11-1.12.0.jar"
     )
-
-    # Define the data that are going to be read from kafka
+    # Erstellen Sie eine Tabelle, um festzulegen, welche Daten aus Kafka gelesen werden
     source_ddl = """
                     CREATE TABLE source_num(
                       `ts` TIMESTAMP(3) METADATA FROM 'timestamp',
@@ -32,8 +31,7 @@ def flink_processing():
                     )
                     """
 
-    # Define the data that are going to be written to kafka,
-    # after the processing
+    # Erstellen Sie eine Tabelle, um festzulegen, welche Daten nach der Verarbeitung in Kafka geschrieben werden
     sink_ddl = """
                     CREATE TABLE sink_table_num(
                         `ts` TIMESTAMP(3) METADATA FROM 'timestamp',
@@ -52,14 +50,11 @@ def flink_processing():
     t_env.execute_sql(source_ddl)
     t_env.execute_sql(sink_ddl)
 
-    # Execute the wanted query
-    # -64464377#3 (NE), -11014139#1 (NW) 161678033#0 (SW) -24970784#3 (SE)
+    # Führen Sie eine Query aus, um die Autos zu erhalten, die die Heydeck-Östliche Ringstraßen-Kante passieren
     t_env.sql_query(
         "SELECT `ts`, `step`, `edge_id`, `vehicle_num` "
         "FROM `source_num` "
-        #"WHERE `edge_id`='172515808' OR `edge_id`='-29458641'"
-        # '-64464377#3', '-11014139#1', '161678033#0', '-24970784#3'
-        "WHERE `edge_id`='-64464377#3' OR `edge_id`='-11014139#1' OR `edge_id`='161678033#0' OR `edge_id`='-24970784#3'"
+        "WHERE `edge_id`='32009826#1'"
     ).execute_insert("sink_table_num").wait()
 
 

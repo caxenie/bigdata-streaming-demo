@@ -1,15 +1,13 @@
 import json
 
 import matplotlib.pyplot as plt
-import numpy as np
 
-# use ggplot style for more sophisticated visuals
 from kafka import KafkaConsumer
 from matplotlib.animation import FuncAnimation
 
 plt.style.use('ggplot')
 
-
+# Einrichten des Kafka-Konsumenten zum Abrufen von Daten
 consumer = KafkaConsumer(
     'sink_topic_num',
      bootstrap_servers=['localhost:9092'],
@@ -21,61 +19,66 @@ consumer = KafkaConsumer(
 
 data_dict = {}
 t = 0
-#
-# while True:
-#     for message in consumer:
-#         data = message.value
-#         if ':cluster_3050325' in data['edge_id']:
-#             if t == 0:
-#                 t = message.timestamp
-#             data_dict[message.timestamp - t] = float(data['step'])
-#             plt.figure(figsize=(10, 10))
-#             plt.plot(range(len(data_dict)), list(data_dict.values()))
-#             # plt.xticks(range(len(data)), list(data.keys()))
-#             plt.show()
 
-# Set the figure for the animation framework
-fig = plt.figure(figsize=(10, 6))  # creating a subplot
-ax1 = fig.add_subplot(1, 1, 1)
+# Einrichten der Visualisierung
+fig = plt.figure(figsize=(10, 6))
+ax1 = fig.add_subplot(2, 1, 1)
+ax2 = fig.add_subplot(2, 1, 2)
 data_x = {}
 data_y = {}
+inc_data_y = {}
+inc_data_x = {}
 data_color = {}
-colors = ['red', 'green', 'blue', 'black', 'magenta']
+colors = ['red', 'green']
 first = True
+avg = 0
+avg_now = 0
+n = 1
+sumv = 1
+
 
 def animate(message):
     global colors
     global first
+    global avg
+    global avg_now
+    global n
+    global sumv
     data = message.value
-    if data['edge_id'] not in data_x or data['edge_id'] not in data_y or data['edge_id'] not in data_color:
+    # Lokale Datenstrukturen zum Plotten ausfüllen
+    if data['edge_id'] not in data_x or data['edge_id'] not in data_y or data['edge_id'] not in inc_data_y or data['edge_id'] not in inc_data_x or data['edge_id'] not in data_color:
         data_x[data['edge_id']] = []
         data_y[data['edge_id']] = []
+        inc_data_x[data['edge_id']] = []
+        inc_data_y[data['edge_id']] = []
         data_color[data['edge_id']] = colors[len(data_x)]
     data_x[data['edge_id']].append(data['step'])
     data_y[data['edge_id']].append(float(data['vehicle_num']))
-    # -64464377#3 (NE), -11014139#1 (NW) 161678033#0 (SW) -24970784#3 (SE)
-    edge_label = f" #Auto Esplanade "
-    if data['edge_id'] == '-11014139#1':
-        edge_label = f" #Auto Heydeckstrasse - Esplanade "
-    if data['edge_id'] == '-64464377#3':
-        edge_label = f" #Auto Heydeckstrasse - Oestliche Ringstrasse "
-    if data['edge_id'] == '161678033#0':
-        edge_label = f" #Auto Rossmuehlstrasse - Schlosslaende "
-    if data['edge_id'] == '-24970784#3':
-        edge_label = f" #Auto Schlosslaende - Fruelingstrasse "
+    inc_data_x[data['edge_id']].append(data['step'])
+    inc_data_y[data['edge_id']].append(float(avg_now))
+    # Der Einfachheit halber implementieren Sie den gleitenden Mittelwert in diesem Callback
+    avg_now = avg + 1/sumv*(float(data['vehicle_num']) - avg)
+    avg = avg_now
+    sumv = sumv + float(data['vehicle_num'])
     ax1.plot(
         data_x[data['edge_id']],
         data_y[data['edge_id']],
         color=data_color[data['edge_id']],
-        label=edge_label
+        label=''
     )
-    ax1.set_xlabel('Sekunden')
-    ax1.set_ylabel('# Auto')
-    ax1.set_title('Verkehrsüberwachung und –analyse')
-    if len(data_x) == 4 and first:
+    ax1.set_ylabel('# Autos')
+    ax1.set_title('Verkehrsüberwachung und –analyse \n (Heydeckstraße richtung Östliche Ringstraße)')
+    ax2.plot(
+        inc_data_x[data['edge_id']],
+        inc_data_y[data['edge_id']],
+        color=data_color[data['edge_id']],
+        label=''
+    )
+    ax2.set_xlabel('Sekunden')
+    ax2.set_ylabel('Gleitender Mittelwert')
+    if len(data_x) == 1 and first:
         first = False
-        plt.legend()
 
-
-ani = FuncAnimation(fig=fig, func=animate, frames=consumer, interval=10)
+# Verbinden Sie die Visualisierung und erfassen Sie Daten
+ani = FuncAnimation(fig=fig, func=animate, frames=consumer, interval=200)
 plt.show()
