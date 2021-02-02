@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 02/02/21 13:29:01 by Eclipse SUMO GUI Version 1.8.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="D:/dev/sumo-flink-example-master/SUMO_Map_Munich/bin/Hochschule_Munich_Viertel.net.xml"/>
+        <route-files value="D:/dev/sumo-flink-example-master/SUMO_Map_Munich/bin/cars.rou.xml"/>
+        <additional-files value="D:/dev/sumo-flink-example-master/SUMO_Map_Munich/bin/inductions.add.xml"/>
+    </input>
+
+    <output>
+        <fcd-output value="D:/dev/sumo-flink-example-master/SUMO_Map_Munich/bin/SUMO_output.output.xml"/>
+        <fcd-output.geo value="true"/>
+    </output>
+
+    <time>
+        <begin value="0"/>
+        <end value="1000"/>
+        <step-length value="1"/>
+    </time>
+
+    <traci_server>
+        <remote-port value="62127"/>
+    </traci_server>
+
+    <gui_only>
+        <start value="true"/>
+        <tracker-interval value="1"/>
+    </gui_only>
+
+</configuration>

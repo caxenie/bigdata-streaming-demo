@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<additional>
+    <e1Detector id="loop1" lane="313576543#3_0" pos="3.00" freq="900.00" file="induction_lines.xml" friendlyPos="1"/>
+</additional>
