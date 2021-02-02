@@ -1,9 +1,8 @@
 from pyflink.datastream import StreamExecutionEnvironment
 from pyflink.table import StreamTableEnvironment, EnvironmentSettings
 
-
+# Setup the Flink Streaming Engine
 def flink_processing():
-    # Bereiten Sie die Konfiguration der Streaming-Engine vor
     env = StreamExecutionEnvironment.get_execution_environment()
     env.set_parallelism(1)
     env_settings = EnvironmentSettings.Builder().use_blink_planner().build()
@@ -15,7 +14,7 @@ def flink_processing():
         "file:////D:/temp/kafka_2.12-2.7.0/flink-connector-kafka_2.11-1.12.0.jar;"
         "file:////D:/temp/kafka_2.12-2.7.0/flink-sql-connector-kafka_2.11-1.12.0.jar"
     )
-    # Erstellen Sie eine Tabelle, um festzulegen, welche Daten aus Kafka gelesen werden
+    # create dummy functionality on writing data from Kafka in a table and then in another table
     source_ddl = """
                     CREATE TABLE source_num(
                       `ts` TIMESTAMP(3) METADATA FROM 'timestamp',
@@ -31,7 +30,6 @@ def flink_processing():
                     )
                     """
 
-    # Erstellen Sie eine Tabelle, um festzulegen, welche Daten nach der Verarbeitung in Kafka geschrieben werden
     sink_ddl = """
                     CREATE TABLE sink_table_num(
                         `ts` TIMESTAMP(3) METADATA FROM 'timestamp',
@@ -45,16 +43,15 @@ def flink_processing():
                       'format' = 'json'
                     )
                     """
-
-    # Actually create the two tables
+    # Execute the queries
     t_env.execute_sql(source_ddl)
     t_env.execute_sql(sink_ddl)
-
-    # Führen Sie eine Query aus, um die Autos zu erhalten, die die Heydeck-Östliche Ringstraßen-Kante passieren
+    # The dummy stream processing query executed in Flink
+    # select from table and insert in the sink table
     t_env.sql_query(
         "SELECT `ts`, `step`, `edge_id`, `vehicle_num` "
         "FROM `source_num` "
-        "WHERE `edge_id`='32009826#1'"
+        "WHERE `edge_id`='313576543#2'"  # Dachauerstrasse - Lothstrasse
     ).execute_insert("sink_table_num").wait()
 
 

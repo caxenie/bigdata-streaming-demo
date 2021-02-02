@@ -14,12 +14,12 @@ if 'SUMO_HOME' in os.environ:
 else:
     sys.exit("please declare environment variable 'SUMO_HOME'")
 
-# Starten Sie den SUMO Traffic Simulator
+# Start the SUMO Simulator (Simulator for Urban Mobility)
 def start_sumo(sumo_config: str):
     sumo_cmd = ["sumo-gui", "-c", sumo_config, "--start", "--step-length", "1"]
     traci.start(sumo_cmd)
 
-# Wählen Sie die Art der Daten, die vom Simulator gesammelt werden sollen.
+# Define what information to request from the simulator
 def create_edge_subscriptions() -> List[str]:
     edge_ids = traci.edge.getIDList()
     for edge_id in edge_ids:
@@ -29,7 +29,7 @@ def create_edge_subscriptions() -> List[str]:
         )
     return edge_ids
 
-# Funktion zum Schreiben der Simulator-Daten in den Kafka-Bus
+# Request the actual information from the simulator
 def publish_message(
         producer: KafkaProducer, topic: str, value: Dict[str, Any]
 ):
@@ -39,7 +39,7 @@ def publish_message(
         print('Exception in publishing message')
         print(str(ex))
 
-# Erstellen Sie einen Datenproduzenten für den Simulator
+# Create a Kafka producer to request data from the Simualtor (the Stream generator)
 def create_kafka_producer() -> KafkaProducer:
     producer = None
     try:
@@ -54,14 +54,13 @@ def create_kafka_producer() -> KafkaProducer:
     finally:
         return producer
 
-# Run Simulation
+# Run the simulation and subscribe for updates on a certain edge / lane of the map
 def run_simulation(
         steps: int, edges: List[str], producer: KafkaProducer
 ) -> None:
     for step in range(steps):
         traci.simulationStep()
         for edge in edges:
-            # Wähle das Kafka-Topic, in das die Daten geschrieben werden
             result = traci.edge.getSubscriptionResults(edge)
             for veh_id in result[tc.LAST_STEP_VEHICLE_ID_LIST]:
                 publish_message(
@@ -75,7 +74,6 @@ def run_simulation(
                 )
                 print(f"{step};{edge};{veh_id}")
             vehicle_number = result[tc.LAST_STEP_VEHICLE_NUMBER]
-            # Prüfen, ob neue Fahrzeuge passieren
             if vehicle_number > 0:
                 publish_message(
                     producer=producer,
@@ -88,8 +86,7 @@ def run_simulation(
                 )
                 print(f"{step};{edge};{vehicle_number}")
             else:
-                # Berücksichtige nur den Rand (Heydeck - Östliche Ringstraße)
-                if edge == '32009826#1':
+                if edge == '313576543#2': # Dachauerstrasse - Lothstrasse
                     publish_message(
                         producer=producer,
                         topic="source_num",
@@ -106,7 +103,8 @@ def run_simulation(
 def close_sumo() -> None:
     traci.close()
 
-# Funktion zum Starten der Datenstromerzeugung
+
+# The stream generator
 def sumo_generator(sumo_config: str, steps: int) -> None:
     producer = create_kafka_producer()
     start_sumo(sumo_config)
@@ -121,5 +119,5 @@ def sumo_generator(sumo_config: str, steps: int) -> None:
 
 if __name__ == "__main__":
     base_path = os.path.dirname(os.path.realpath(__file__))
-    SUMO_CFG = f"D:/dev/sumo-flink-example-master/InTAS/scenario/InTAS_full_poly.sumocfg"
+    SUMO_CFG = f"D:/dev/sumo-flink-example-master/SUMO_Map_Munich/bin/Hochschule_Munich_Viertel.sumo.cfg"
     sumo_generator(sumo_config=SUMO_CFG, steps=10000)
