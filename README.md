@@ -4,15 +4,13 @@ End-to-End example with Big Data tools. Data from a Sumo vehicle traffic simulat
 
 ### Prerequesites
 
-- Clone the [InTAS Sumo Configuration](https://github.com/silaslobo/InTAS)
 - Install [Sumo Simulator](https://sumo.dlr.de/docs/Downloads.php)
 - Install [Apache Kafka](https://kafka.apache.org/quickstart)
-
+- Clone the [InTAS Sumo Configuration](https://github.com/silaslobo/InTAS) or use the included Munich maps (generated with OSMOSIS)
 
 ### Setup guidelines
 
-This procedure assumes that the InTAS (InTAS is the realistic Ingolstadt traffic scenario for SUMO), Sumo simulator, Apache Kafka, and Apache Flink
-had been already installed correctly.
+This procedure assumes that the Munich maps (generated with OSMOSIS) or the InTAS (InTAS is the realistic Ingolstadt traffic scenario for SUMO), Sumo simulator, Apache Kafka, and Apache Flink had been already installed correctly.
 
 Once done that, to run this project please follow the following instructions:
 
